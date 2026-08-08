@@ -342,10 +342,9 @@
     const storageKey = "golf-score-18-v2";
     const fields = {
       date: document.querySelector("#date"),
-      course: document.querySelector("#course"),
-      player: document.querySelector("#player")
+      course: document.querySelector("#course")
     };
-    const scoreInputs = [...document.querySelectorAll(".score")];
+    const playerRows = [...document.querySelectorAll("tbody tr")];
 
     function numberValue(input) {
       const value = Number(input.value);
@@ -353,19 +352,24 @@
     }
 
     function calculate() {
-      const firstNine = scoreInputs.slice(0, 9).reduce((sum, input) => sum + numberValue(input), 0);
-      const lastNine = scoreInputs.slice(9).reduce((sum, input) => sum + numberValue(input), 0);
-      document.querySelector("#out").textContent = firstNine;
-      document.querySelector("#in").textContent = firstNine;
-      document.querySelector("#total").textContent = firstNine + lastNine;
+      playerRows.forEach(row => {
+        const scores = [...row.querySelectorAll(".score")];
+        const firstNine = scores.slice(0, 9).reduce((sum, input) => sum + numberValue(input), 0);
+        const lastNine = scores.slice(9, 18).reduce((sum, input) => sum + numberValue(input), 0);
+        row.querySelector("#out").textContent = firstNine;
+        row.querySelector("#in").textContent = firstNine;
+        row.querySelector("#total").textContent = firstNine + lastNine;
+      });
     }
 
     function save() {
       const data = {
         date: fields.date.value,
         course: fields.course.value,
-        player: fields.player.value,
-        scores: scoreInputs.map(input => input.value)
+        players: playerRows.map(row => ({
+          name: row.querySelector('input[type="text"]').value,
+          scores: [...row.querySelectorAll(".score")].map(input => input.value)
+        }))
       };
       localStorage.setItem(storageKey, JSON.stringify(data));
     }
@@ -381,9 +385,20 @@
       if (!data) return calculate();
       fields.date.value = data.date || "";
       fields.course.value = data.course || "";
-      fields.player.value = data.player || "";
-      if (Array.isArray(data.scores)) {
-        scoreInputs.forEach((input, index) => input.value = data.scores[index] || "");
+      if (Array.isArray(data.players)) {
+        playerRows.forEach((row, rowIndex) => {
+          const player = data.players[rowIndex] || {};
+          row.querySelector('input[type="text"]').value = player.name || "";
+          row.querySelectorAll(".score").forEach((input, holeIndex) => {
+            input.value = player.scores?.[holeIndex] || "";
+          });
+        });
+      } else if (Array.isArray(data.scores)) {
+        const firstRow = playerRows[0];
+        firstRow.querySelector('input[type="text"]').value = data.player || "";
+        firstRow.querySelectorAll(".score").forEach((input, index) => {
+          input.value = data.scores[index] || "";
+        });
       }
       calculate();
     }
@@ -392,7 +407,10 @@
     document.querySelector("#reset").addEventListener("click", () => {
       if (!confirm("Vill du nollställa alla uppgifter och resultat?")) return;
       Object.values(fields).forEach(input => input.value = "");
-      scoreInputs.forEach(input => input.value = "");
+      playerRows.forEach(row => {
+        row.querySelector('input[type="text"]').value = "";
+        row.querySelectorAll(".score").forEach(input => input.value = "");
+      });
       update();
     });
 
