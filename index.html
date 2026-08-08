@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golfscore – 18 hål</title>
+  <style>
+    :root {
+      --green: #176b45;
+      --dark-green: #0d4930;
+      --pale-green: #eaf4ee;
+      --gold: #d3a632;
+      --cream: #f7f5ed;
+      --line: #ced8d1;
+      --text: #17231c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 30px 16px;
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: linear-gradient(145deg, #e4eee7, var(--cream));
+    }
+
+    main {
+      width: min(1440px, 100%);
+      margin: auto;
+      overflow: hidden;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 18px 55px rgba(23, 70, 46, 0.14);
+    }
+
+    header {
+      padding: 26px clamp(20px, 4vw, 48px);
+      color: white;
+      background: linear-gradient(120deg, var(--dark-green), var(--green));
+    }
+
+    h1 { margin: 0 0 5px; font-size: clamp(1.7rem, 4vw, 2.5rem); }
+    header p { margin: 0; opacity: 0.85; }
+
+    .content { padding: 26px clamp(14px, 3vw, 38px) 32px; }
+
+    .round-info {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 14px;
+      max-width: 760px;
+      margin-bottom: 25px;
+    }
+
+    label { display: block; font-weight: 700; }
+
+    input, select {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+      background: white;
+      font: inherit;
+    }
+
+    .round-info input, .round-info select { margin-top: 6px; padding: 11px 12px; }
+    input:focus, select:focus { outline: 3px solid rgba(23, 107, 69, 0.17); border-color: var(--green); }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+
+    table {
+      width: 100%;
+      min-width: 1250px;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    th, td { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    tr:last-child td { border-bottom: 0; }
+    th:last-child, td:last-child { border-right: 0; }
+
+    th {
+      padding: 12px 7px;
+      color: white;
+      background: var(--dark-green);
+      font-size: 0.9rem;
+    }
+
+    th:nth-child(11), th:nth-child(21), th:nth-child(22) { background: #a47b14; }
+    td { height: 57px; padding: 6px; background: #fbfcfb; }
+
+    .name-cell { width: 170px; }
+    .hole-cell { width: 50px; }
+    .total-cell { width: 74px; }
+
+    td input {
+      height: 42px;
+      padding: 5px;
+      border: 0;
+      text-align: center;
+      background: transparent;
+    }
+
+    td input[type="text"] { padding-inline: 10px; text-align: left; }
+    .calculated { font-size: 1.05rem; font-weight: 800; background: var(--pale-green); }
+    .grand-total { color: var(--dark-green); background: #f8edd0; font-size: 1.15rem; }
+
+    .note { margin: 12px 2px 0; color: #627067; font-size: 0.88rem; }
+    .actions { display: flex; justify-content: flex-end; margin-top: 20px; }
+
+    button {
+      padding: 11px 16px;
+      border: 0;
+      border-radius: 9px;
+      color: white;
+      background: #91413b;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(1.08); }
+
+    @media (max-width: 620px) {
+      body { padding: 0; }
+      main { min-height: 100vh; border-radius: 0; }
+      .round-info { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { padding: 0; background: white; }
+      main { width: 100%; box-shadow: none; }
+      .actions, .note { display: none; }
+      .content { padding: 18px 8px; }
+      .table-wrap { overflow: visible; }
+      table { min-width: 0; font-size: 9px; }
+      th, td { padding: 3px; }
+      td { height: 38px; }
+      td input { height: 30px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Scorekort 18 hål</h1>
+      <p>Fyll i rundans uppgifter och antal slag på varje hål.</p>
+    </header>
+
+    <div class="content">
+      <section class="round-info" aria-label="Information om rundan">
+        <label>Datum
+          <input id="date" type="date">
+        </label>
+        <label>Bana
+          <select id="course">
+            <option value="">Välj bana</option>
+            <option>Järva Discgolf Park</option>
+            <option>Kärsön Frisbeegolfbana</option>
+            <option>Lillsjön</option>
+            <option>Linta Discgolf Park</option>
+            <option>Tyresö Discgolfbana</option>
+            <option>Täby Discgolfbana</option>
+            <option>Upplands Väsby DiscGolfPark</option>
+            <option>Ursviks Discgolf</option>
+            <option>Visättra</option>
+            <option>Västerhaninge Discgolfbana</option>
+            <option>Åkersberga</option>
+          </select>
+        </label>
+      </section>
+
+      <div class="table-wrap">
+        <table aria-label="Resultat för 18 hål">
+          <thead>
+            <tr>
+              <th>Namn</th>
+              <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+              <th>6</th><th>7</th><th>8</th><th>9</th><th>UT</th>
+              <th>10</th><th>11</th><th>12</th><th>13</th><th>14</th>
+              <th>15</th><th>16</th><th>17</th><th>18</th><th>IN</th><th>SUMMA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="name-cell"><input id="player" type="text" aria-label="Spelarens namn" placeholder="Namn"></td>
+              <td class="hole-cell"><input class="score" data-hole="1" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 1"></td>
+              <td class="hole-cell"><input class="score" data-hole="2" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 2"></td>
+              <td class="hole-cell"><input class="score" data-hole="3" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 3"></td>
+              <td class="hole-cell"><input class="score" data-hole="4" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 4"></td>
+              <td class="hole-cell"><input class="score" data-hole="5" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 5"></td>
+              <td class="hole-cell"><input class="score" data-hole="6" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 6"></td>
+              <td class="hole-cell"><input class="score" data-hole="7" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 7"></td>
+              <td class="hole-cell"><input class="score" data-hole="8" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 8"></td>
+              <td class="hole-cell"><input class="score" data-hole="9" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 9"></td>
+              <td id="out" class="calculated total-cell">0</td>
+              <td class="hole-cell"><input class="score" data-hole="10" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 10"></td>
+              <td class="hole-cell"><input class="score" data-hole="11" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 11"></td>
+              <td class="hole-cell"><input class="score" data-hole="12" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 12"></td>
+              <td class="hole-cell"><input class="score" data-hole="13" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 13"></td>
+              <td class="hole-cell"><input class="score" data-hole="14" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 14"></td>
+              <td class="hole-cell"><input class="score" data-hole="15" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 15"></td>
+              <td class="hole-cell"><input class="score" data-hole="16" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 16"></td>
+              <td class="hole-cell"><input class="score" data-hole="17" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 17"></td>
+              <td class="hole-cell"><input class="score" data-hole="18" type="number" min="0" inputmode="numeric" aria-label="Slag på hål 18"></td>
+              <td id="in" class="calculated total-cell">0</td>
+              <td id="total" class="calculated grand-total total-cell">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">UT summerar hål 1–9. IN visar värdet från UT. SUMMA är IN plus hål 10–18.</p>
+      <div class="actions"><button id="reset" type="button">Nollställ scorekortet</button></div>
+    </div>
+  </main>
+
+  <script>
+    const storageKey = "golf-score-18-v2";
+    const fields = {
+      date: document.querySelector("#date"),
+      course: document.querySelector("#course"),
+      player: document.querySelector("#player")
+    };
+    const scoreInputs = [...document.querySelectorAll(".score")];
+
+    function numberValue(input) {
+      const value = Number(input.value);
+      return Number.isFinite(value) && value >= 0 ? value : 0;
+    }
+
+    function calculate() {
+      const firstNine = scoreInputs.slice(0, 9).reduce((sum, input) => sum + numberValue(input), 0);
+      const lastNine = scoreInputs.slice(9).reduce((sum, input) => sum + numberValue(input), 0);
+      document.querySelector("#out").textContent = firstNine;
+      document.querySelector("#in").textContent = firstNine;
+      document.querySelector("#total").textContent = firstNine + lastNine;
+    }
+
+    function save() {
+      const data = {
+        date: fields.date.value,
+        course: fields.course.value,
+        player: fields.player.value,
+        scores: scoreInputs.map(input => input.value)
+      };
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+
+    function update() {
+      calculate();
+      save();
+    }
+
+    function load() {
+      let data;
+      try { data = JSON.parse(localStorage.getItem(storageKey)); } catch (_) {}
+      if (!data) return calculate();
+      fields.date.value = data.date || "";
+      fields.course.value = data.course || "";
+      fields.player.value = data.player || "";
+      if (Array.isArray(data.scores)) {
+        scoreInputs.forEach((input, index) => input.value = data.scores[index] || "");
+      }
+      calculate();
+    }
+
+    document.querySelector("main").addEventListener("input", update);
+    document.querySelector("#reset").addEventListener("click", () => {
+      if (!confirm("Vill du nollställa alla uppgifter och resultat?")) return;
+      Object.values(fields).forEach(input => input.value = "");
+      scoreInputs.forEach(input => input.value = "");
+      update();
+    });
+
+    load();
+  </script>
+</body>
+</html>
